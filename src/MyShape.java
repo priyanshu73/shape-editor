@@ -1,13 +1,20 @@
 /**
  *  Writing the abstract shape class that serves as a base for other shapes such as line, oval and rectangle. 
  */
+
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public abstract class MyShape  {
-	protected Point2D p1, p2 , center;
-	protected Color color;
+public abstract class MyShape implements Serializable {
+	protected transient Point2D p1, p2 , center;
+	protected transient Color color;
 	protected double ulx , uly, width, height;
 	protected boolean filled; 
 
@@ -220,6 +227,7 @@ public abstract class MyShape  {
 	 */
 	public void drawBounds(GraphicsContext gc) {
 		gc.setLineDashes(5);
+		gc.setStroke(color);
 		gc.strokeRect(ulx, uly, width, height);
 		gc.setLineDashes(null);
 		updateBounds();
@@ -231,5 +239,50 @@ public abstract class MyShape  {
 	 * @param gc The graphics context on which to draw the shape.
 	 */
 	public abstract void draw(GraphicsContext gc);
+	
+	@Override
+	public String toString() {
+		int fill = filled == true? 1 : 0;
+		return String.format("%-3.0f %-3.0f %-3.0f %-3.0f %d %.3f %.3f %.3f",p1.getX(), p1.getY(), p2.getX(), p2.getY(), fill, color.getRed(),color.getGreen(), color.getBlue());
+	}
+	
+	//customize serialization
+		private void writeObject(ObjectOutputStream out) throws IOException {
+			//default serialization all basic types,
+			
+			out.defaultWriteObject();
+			
+			
+			//serialize color
+			
+			out.writeDouble(color.getRed());
+			out.writeDouble(color.getGreen());
+			out.writeDouble(color.getBlue());
+			
+			out.writeDouble(p1.getX());
+			out.writeDouble(p1.getY());
+			out.writeDouble(p2.getX());
+			out.writeDouble(p2.getY());
+
+		}
+
+		private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
+
+			in.defaultReadObject();
+			double r = in.readDouble();
+			double g = in.readDouble();
+			double b = in.readDouble();
+			
+			double x1 = in.readDouble();
+			double y1 = in.readDouble();
+			double x2 = in.readDouble();
+			double y2 = in.readDouble();
+			
+			setP1(x1,y1);
+			setP2(x2,y2);
+			updateCenter();
+			updateBounds();
+			color = Color.color(r, g, b);
+		}
 
 }

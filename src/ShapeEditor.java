@@ -1,4 +1,5 @@
 /**
+ * Assignment: HW6
  * ShapeEditor is a JavaFX application for drawing shapes on a canvas.
  * It provides functionality for drawing lines, ovals, and rectangles,
  * with options to fill or outline the shapes.
@@ -6,14 +7,22 @@
  * @author Priyanshu Pyakurel
  * @date 03/28/28
  */
+import java.io.File;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class ShapeEditor extends Application{
@@ -35,6 +44,13 @@ public class ShapeEditor extends Application{
 	private LineHandler lineHandler;
 	private OvalHandler ovalHandler;
 	private RectHandler rectHandler;
+	private ColorPicker colorPicker;
+	private Color curColor = Color.BLACK;
+	private MenuBar menuBar;
+	private Menu menuFile, menuAbout;
+	private MenuItem miLoad, miSave, miLoadB, miSaveB;
+	private FileChooser fcLoad, fcSave;
+
 
 
 	@Override
@@ -48,6 +64,7 @@ public class ShapeEditor extends Application{
 	public void start(Stage stage) {
 		mainPane = new BorderPane();
 		setupCanvas();
+		setupMenu();
 		setupControls();
 
 		Scene scene = new Scene(mainPane, APP_WIDTH, APP_HEIGHT);
@@ -117,10 +134,76 @@ public class ShapeEditor extends Application{
 			canvas.clear();
 		});
 
+		colorPicker = new ColorPicker(curColor);
+		colorPicker.setOnAction(e ->{
+			curColor = colorPicker.getValue();
+			canvas.setCurColor(curColor);
+		});
 
-		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval,rbRect);
+		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval,rbRect, colorPicker);
 
 		mainPane.setTop(controlPanel);
+	}
+	
+	private void setupMenu() {
+		menuBar   = new MenuBar();
+
+        menuFile  = new Menu("File");
+        menuAbout = new Menu("About");
+
+        miLoad    = new MenuItem("Load");
+        miSave    = new MenuItem("Save");
+
+        miLoadB   = new MenuItem("Load in Binary");
+        miSaveB   = new MenuItem("Save in Binary");
+
+        fcLoad = new FileChooser();
+        fcLoad.setTitle("Load a drawing");
+        
+        
+        miLoad.setOnAction(e ->{
+        	File file = fcLoad.showOpenDialog(null);
+        	if (file!=null) {
+        		canvas.fromTextFile(file);
+        	}
+        });
+
+        fcSave = new FileChooser();
+        fcSave.setTitle("Save current drawing as");
+        //action handlers 
+        
+        miSave.setOnAction(e ->{
+        	File file = fcSave.showSaveDialog(null);
+        	if( file!=null) {
+        		canvas.toTextFile(file);
+        	}
+        });
+        
+        miLoadB.setOnAction( e -> {
+			File selectedFile = fcLoad.showOpenDialog(null);
+
+			if (selectedFile != null) {
+
+				canvas.fromBinaryFile(selectedFile);
+			}
+		});
+		
+
+		miSaveB.setOnAction( e -> {
+			File selectedFile = fcLoad.showSaveDialog(null);
+
+			if (selectedFile != null) {
+
+				canvas.toBinaryFile(selectedFile);
+			}
+		});
+
+        
+        
+        menuBar.getMenus().addAll(menuFile, menuAbout);
+        menuFile.getItems().addAll(miLoad, miSave, miLoadB, miSaveB);
+        mainPane.setLeft(menuBar);
+		
 	}
 
 	/**

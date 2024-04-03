@@ -56,4 +56,8 @@ public class Rect extends MyShape {
 			drawBounds(gc);
 		}
 	}
+	
+	public String toString() {
+		return "rect " + super.toString();
+	}
 }

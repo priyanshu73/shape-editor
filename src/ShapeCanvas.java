@@ -2,7 +2,17 @@
  * The ShapeCanvas class extends the Canvas class and provides functionality
  * for drawing and managing shapes on a canvas.
  */
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,7 +24,7 @@ public class ShapeCanvas extends Canvas {
 	private GraphicsContext gc; 
 	private ArrayList<MyShape> shapes; 
 	private MyShape curShape; 
-	private Color currColor = Color.BLACK; 
+	private Color curColor = Color.BLACK; 
 	private double width, height;
 	private boolean curFilled; 
 
@@ -41,6 +51,10 @@ public class ShapeCanvas extends Canvas {
 		curFilled = fill;
 	}
 
+
+	public void setCurColor(Color col) {
+		curColor = col;
+	}
 	/**
 	 * Clears the canvas and redraws all shapes.
 	 */
@@ -67,6 +81,7 @@ public class ShapeCanvas extends Canvas {
 	public void addShape(MyShape s) {
 		shapes.add(s);
 		paint();
+		//System.out.println(s.toString());
 	}
 
 	/**
@@ -78,7 +93,7 @@ public class ShapeCanvas extends Canvas {
 		curShape = s;
 
 		if (s != null) {
-			curShape.setColor(currColor);
+			curShape.setColor(curColor);
 			curShape.setFilled(curFilled);
 		}
 	}
@@ -89,6 +104,130 @@ public class ShapeCanvas extends Canvas {
 	public void clear() {
 		shapes.clear();
 		paint();
+	}
+
+
+	public void toTextFile(File fileObj) {
+		try {
+			PrintWriter fileOut = new PrintWriter(fileObj);
+			fileOut.println(shapes.size());
+
+			//get string format for each shape and write it on the file
+			for (MyShape s : shapes) {
+				fileOut.println(s.toString());
+			}
+
+			fileOut.close();
+		}
+		catch(FileNotFoundException e) {
+			System.out.println(fileObj.getName() + " Couldn't be opened for writing");
+			e.printStackTrace();
+		}
+	}
+
+	public void fromTextFile(File fileObj) {
+		try {
+			Scanner fileIn = new Scanner(fileObj);
+
+			clear();
+
+			int nShapes = fileIn.nextInt();
+			for( int i =0; i < nShapes; ++i) {
+				String type = fileIn.next();
+				int x1 = fileIn.nextInt();
+				int y1 = fileIn.nextInt();
+				int x2 = fileIn.nextInt();
+				int y2  = fileIn.nextInt();
+				int filled = fileIn.nextInt(); // 0 is not filled, 1 is filled
+				double r    = fileIn.nextDouble();
+				double g    = fileIn.nextDouble();
+				double b    = fileIn.nextDouble();
+				Color  col  = Color.color(r, g, b);
+
+				MyShape shape = null;
+
+				if( type.equalsIgnoreCase("line")) {
+					shape = new Line(x1,y1,x2,y2);
+					Boolean fill = filled == 1 ? true : false;
+					shape.setFilled(fill);
+					shape.setColor(col);
+				}
+				else if (type.equalsIgnoreCase("oval")){
+					shape = new Oval(x1,y1,x2,y2);
+					Boolean fill = filled == 1 ? true : false;
+					shape.setFilled(fill);
+					shape.setColor(col); 
+				}
+				else {
+					shape = new Rect(x1,y1,x2,y2);
+					Boolean fill = filled == 1 ? true : false;
+					shape.setFilled(fill);
+					shape.setColor(col);
+				}
+
+				shapes.add(shape);		
+			}
+
+			fileIn.close();
+
+			paint();
+		}
+		catch(FileNotFoundException e){
+			System.out.println(fileObj.getName()+ " could not be opened for reading");
+			e.printStackTrace();
+		}
+	}
+
+	public void toBinaryFile(File fileObj) {
+		try {
+			FileOutputStream fOS = new FileOutputStream(fileObj);
+			ObjectOutputStream fOut = new ObjectOutputStream(fOS);
+			fOut.writeInt(shapes.size());
+
+			for(MyShape s : shapes) {
+				fOut.writeObject(s);
+			}
+			fOS.close();
+			fOut.close();
+		}
+		catch(IOException e){
+			System.out.println(fileObj.getName()+ "could not be opened for reading");
+			e.printStackTrace(); 
+		}
+	}
+	
+	public void fromBinaryFile(File fileObj) {
+
+		try {
+			FileInputStream fIS = new FileInputStream(fileObj);
+			ObjectInputStream fIn = new ObjectInputStream(fIS);
+			clear();
+
+			int n = fIn.readInt();
+
+			for ( int i = 0; i < n ; i ++) {
+				MyShape s = (MyShape) fIn.readObject();
+				shapes.add(s);
+			}
+
+			fIn.close();
+
+			fIS.close();
+			paint();
+
+		} 
+
+
+		catch (IOException e) {
+			for( MyShape s : shapes)
+				e.printStackTrace();
+		}
+
+		catch (ClassNotFoundException e2) {
+			for( MyShape s : shapes)
+				e2.printStackTrace();
+		}
+
 	}
 
 	/**

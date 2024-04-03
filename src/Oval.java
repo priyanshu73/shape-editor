@@ -55,4 +55,8 @@ public class Oval extends MyShape {
 		}
 		drawBounds(gc);
 	}
+	
+	public String toString() {
+		return "oval " + super.toString();
+	}
 }

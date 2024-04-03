@@ -2,6 +2,8 @@
  * The Line class represents a line in a 2D space.
  * It extends the MyShape class and provides methods for creating and drawing lines.
  */
+import java.awt.Color;
+
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -53,6 +55,11 @@ public class Line extends MyShape {
 
 		// Draw bounds if available
 		drawBounds(gc);
+	}
+	
+	@Override
+	public String toString() {
+		return "line " + super.toString();
 	}
 }
 
