@@ -44,6 +44,7 @@ public class Oval extends MyShape {
 	 */
 	@Override
 	public void draw(GraphicsContext gc) {
+		drawBounds(gc);
 		if (filled) {
 			// Fill the oval with the specified color
 			gc.setFill(color);
@@ -53,9 +54,13 @@ public class Oval extends MyShape {
 			gc.setStroke(color);
 			gc.strokeOval(ulx, uly, width, height);
 		}
-		drawBounds(gc);
+	
 	}
 	
+	/**
+	 * A string representation for the shape
+	 */
+	@Override
 	public String toString() {
 		return "oval " + super.toString();
 	}

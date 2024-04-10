@@ -3,6 +3,7 @@
  * for drawing and managing shapes on a canvas.
  */
 import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -80,7 +81,7 @@ public class ShapeCanvas extends Canvas {
 	 */
 	public void addShape(MyShape s) {
 		shapes.add(s);
-		paint();
+		//paint();
 		//System.out.println(s.toString());
 	}
 
@@ -107,6 +108,12 @@ public class ShapeCanvas extends Canvas {
 	}
 
 
+	/**
+	 * Writes shape data to a text file.
+	 * Each shape is represented as a string in the format:
+	 * "Type x1 y1 x2 y2 filled r g b"	 *
+	 * @param fileObj File object representing the text file to write shape data to
+	 */
 	public void toTextFile(File fileObj) {
 		try {
 			PrintWriter fileOut = new PrintWriter(fileObj);
@@ -115,6 +122,7 @@ public class ShapeCanvas extends Canvas {
 			//get string format for each shape and write it on the file
 			for (MyShape s : shapes) {
 				fileOut.println(s.toString());
+				//System.out.println(s.toString()); //for testing
 			}
 
 			fileOut.close();
@@ -125,20 +133,27 @@ public class ShapeCanvas extends Canvas {
 		}
 	}
 
+	/**
+	 * Reads shape data from a text file and adds shapes to the internal list.
+	 * The file should contain lines in the format:
+	 * "Type x1 y1 x2 y2 filled r g b"
+	 * @param fileObj File object representing the text file with shape data
+	 */
+
 	public void fromTextFile(File fileObj) {
 		try {
 			Scanner fileIn = new Scanner(fileObj);
 
 			clear();
-
 			int nShapes = fileIn.nextInt();
+			
 			for( int i =0; i < nShapes; ++i) {
 				String type = fileIn.next();
 				int x1 = fileIn.nextInt();
 				int y1 = fileIn.nextInt();
 				int x2 = fileIn.nextInt();
 				int y2  = fileIn.nextInt();
-				int filled = fileIn.nextInt(); // 0 is not filled, 1 is filled
+				Boolean fill = fileIn.nextBoolean(); 
 				double r    = fileIn.nextDouble();
 				double g    = fileIn.nextDouble();
 				double b    = fileIn.nextDouble();
@@ -147,20 +162,19 @@ public class ShapeCanvas extends Canvas {
 				MyShape shape = null;
 
 				if( type.equalsIgnoreCase("line")) {
-					shape = new Line(x1,y1,x2,y2);
-					Boolean fill = filled == 1 ? true : false;
+					shape = new Line(x1, y1, x2, y2);
 					shape.setFilled(fill);
 					shape.setColor(col);
 				}
+
 				else if (type.equalsIgnoreCase("oval")){
 					shape = new Oval(x1,y1,x2,y2);
-					Boolean fill = filled == 1 ? true : false;
 					shape.setFilled(fill);
 					shape.setColor(col); 
 				}
+
 				else {
 					shape = new Rect(x1,y1,x2,y2);
-					Boolean fill = filled == 1 ? true : false;
 					shape.setFilled(fill);
 					shape.setColor(col);
 				}
@@ -177,6 +191,11 @@ public class ShapeCanvas extends Canvas {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Writes the shapes data to a binary file.
+	 * @param fileObj The file object to write the data to.
+	 */
 
 	public void toBinaryFile(File fileObj) {
 		try {
@@ -195,7 +214,13 @@ public class ShapeCanvas extends Canvas {
 			e.printStackTrace(); 
 		}
 	}
-	
+
+
+	/**
+	 * Reads shapes data from a binary file.
+	 * @param fileObj The file object to read the data from.
+	 */
+
 	public void fromBinaryFile(File fileObj) {
 
 		try {

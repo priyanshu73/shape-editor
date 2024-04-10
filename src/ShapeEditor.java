@@ -1,11 +1,12 @@
 /**
- * Assignment: HW6
+ * Assignment: HW7
  * ShapeEditor is a JavaFX application for drawing shapes on a canvas.
  * It provides functionality for drawing lines, ovals, and rectangles,
  * with options to fill or outline the shapes.
+ * It also has the menu bar with saving/ loading files in txt/paf format
  *
  * @author Priyanshu Pyakurel
- * @date 03/28/28
+ * @date 04/04/24
  */
 import java.io.File;
 
@@ -98,18 +99,11 @@ public class ShapeEditor extends Application{
 		rbRect.setToggleGroup(group);
 
 		cbFilled.setOnAction(e -> {
-			if(cbFilled.isSelected()) {
-				canvas.setCurFilled(true);
-			}
-			else {
-				canvas.setCurFilled(false);
-			}
+			canvas.setCurFilled(cbFilled.isSelected());
 		});
 
+		canvas.replaceMouseHandler(lineHandler);
 
-		if(rbLine.isSelected()) {
-			canvas.replaceMouseHandler(lineHandler);
-		}
 
 		rbLine.setOnAction(e -> {
 			if(rbLine.isSelected()) {
@@ -130,11 +124,13 @@ public class ShapeEditor extends Application{
 		});
 
 		bnClear = new Button("Clear");
+
 		bnClear.setOnAction(e -> {	
 			canvas.clear();
 		});
 
 		colorPicker = new ColorPicker(curColor);
+
 		colorPicker.setOnAction(e ->{
 			curColor = colorPicker.getValue();
 			canvas.setCurColor(curColor);
@@ -144,42 +140,46 @@ public class ShapeEditor extends Application{
 
 		mainPane.setTop(controlPanel);
 	}
-	
+
+	/**
+	 * sets up the menu by adding options for saving the file in text, as well as binary format
+	 */
 	private void setupMenu() {
 		menuBar   = new MenuBar();
 
-        menuFile  = new Menu("File");
-        menuAbout = new Menu("About");
+		menuFile  = new Menu("File");
+		menuAbout = new Menu("About");
 
-        miLoad    = new MenuItem("Load");
-        miSave    = new MenuItem("Save");
+		miLoad    = new MenuItem("Load");
+		miSave    = new MenuItem("Save");
 
-        miLoadB   = new MenuItem("Load in Binary");
-        miSaveB   = new MenuItem("Save in Binary");
+		miLoadB   = new MenuItem("Load in Binary");
+		miSaveB   = new MenuItem("Save in Binary");
 
-        fcLoad = new FileChooser();
-        fcLoad.setTitle("Load a drawing");
-        
-        
-        miLoad.setOnAction(e ->{
-        	File file = fcLoad.showOpenDialog(null);
-        	if (file!=null) {
-        		canvas.fromTextFile(file);
-        	}
-        });
+		fcLoad = new FileChooser();
 
-        fcSave = new FileChooser();
-        fcSave.setTitle("Save current drawing as");
-        //action handlers 
-        
-        miSave.setOnAction(e ->{
-        	File file = fcSave.showSaveDialog(null);
-        	if( file!=null) {
-        		canvas.toTextFile(file);
-        	}
-        });
-        
-        miLoadB.setOnAction( e -> {
+		fcLoad.setTitle("Load a drawing");
+
+
+		miLoad.setOnAction(e ->{
+			File file = fcLoad.showOpenDialog(null);
+			if (file!=null) {
+				canvas.fromTextFile(file);
+			}
+		});
+
+		fcSave = new FileChooser();
+		fcSave.setTitle("Save current drawing as");
+		//action handlers 
+
+		miSave.setOnAction(e ->{
+			File file = fcSave.showSaveDialog(null);
+			if( file!=null) {
+				canvas.toTextFile(file);
+			}
+		});
+
+		miLoadB.setOnAction( e -> {
 			File selectedFile = fcLoad.showOpenDialog(null);
 
 			if (selectedFile != null) {
@@ -187,7 +187,7 @@ public class ShapeEditor extends Application{
 				canvas.fromBinaryFile(selectedFile);
 			}
 		});
-		
+
 
 		miSaveB.setOnAction( e -> {
 			File selectedFile = fcLoad.showSaveDialog(null);
@@ -198,12 +198,10 @@ public class ShapeEditor extends Application{
 			}
 		});
 
-        
-        
-        menuBar.getMenus().addAll(menuFile, menuAbout);
-        menuFile.getItems().addAll(miLoad, miSave, miLoadB, miSaveB);
-        mainPane.setLeft(menuBar);
-		
+		menuBar.getMenus().addAll(menuFile, menuAbout);
+		menuFile.getItems().addAll(miLoad, miSave, miLoadB, miSaveB);
+
+		mainPane.setLeft(menuBar);
 	}
 
 	/**

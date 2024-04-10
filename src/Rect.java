@@ -44,19 +44,23 @@ public class Rect extends MyShape {
 	 */
 	@Override
 	public void draw(GraphicsContext gc) {
+		drawBounds(gc);
 		if (filled) {
 			// Fill the rectangle with the specified color
 			gc.setFill(color);
 			gc.fillRect(ulx, uly, width, height);
-			drawBounds(gc);
-		} else {
+		}
+		else {
 			// Draw the outline of the rectangle with the specified color
 			gc.setStroke(color);
 			gc.strokeRect(ulx, uly, width, height);
-			drawBounds(gc);
+		
 		}
 	}
 	
+	/**
+	 * A string representation for the shape
+	 */
 	public String toString() {
 		return "rect " + super.toString();
 	}

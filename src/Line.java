@@ -47,16 +47,20 @@ public class Line extends MyShape {
 	 */
 	@Override
 	public void draw(GraphicsContext gc) {
+		// Draw bounds if available
+		drawBounds(gc);
 		// Set the stroke color
 		gc.setStroke(color);
 
 		// Draw the line between the specified points
 		gc.strokeLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 
-		// Draw bounds if available
-		drawBounds(gc);
+
 	}
 	
+	/**
+	 * A string representation for the shape
+	 */
 	@Override
 	public String toString() {
 		return "line " + super.toString();

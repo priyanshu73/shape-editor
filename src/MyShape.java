@@ -17,6 +17,7 @@ public abstract class MyShape implements Serializable {
 	protected transient Color color;
 	protected double ulx , uly, width, height;
 	protected boolean filled; 
+	private static final Color COLOR = Color.BLACK;
 
 	/**
 	 * Constructs a MyShape object with default properties (empty body)
@@ -34,6 +35,7 @@ public abstract class MyShape implements Serializable {
 	public MyShape(Point2D p1, Point2D p2) {
 		this.p1 = p1;
 		this.p2 = p2;
+		color = COLOR;
 		updateCenter();
 		updateBounds();    
 	}
@@ -48,7 +50,7 @@ public abstract class MyShape implements Serializable {
 	 * @param y2 The y-coordinate of the second point.
 	 */
 	public MyShape( double x1, double y1, double  x2, double y2) {
-		this( new Point2D(x1,y1), new Point2D(x2,y2));
+		this( new Point2D(x1, y1), new Point2D(x2, y2));
 	}
 
 	/**
@@ -179,6 +181,8 @@ public abstract class MyShape implements Serializable {
 	 */
 	public void setP2(Point2D p2) {
 		this.p2 = p2;
+		updateCenter();
+		updateBounds();
 	}
 
 	/**
@@ -189,6 +193,8 @@ public abstract class MyShape implements Serializable {
 	 */
 	public void setP2(double x2, double y2) {
 		p2 = new Point2D(x2, y2);
+		updateCenter();
+		updateBounds();
 	}
 
 	/**
@@ -230,7 +236,6 @@ public abstract class MyShape implements Serializable {
 		gc.setStroke(color);
 		gc.strokeRect(ulx, uly, width, height);
 		gc.setLineDashes(null);
-		updateBounds();
 	}
 
 	/**
@@ -239,50 +244,61 @@ public abstract class MyShape implements Serializable {
 	 * @param gc The graphics context on which to draw the shape.
 	 */
 	public abstract void draw(GraphicsContext gc);
-	
+
 	@Override
 	public String toString() {
-		int fill = filled == true? 1 : 0;
-		return String.format("%-3.0f %-3.0f %-3.0f %-3.0f %d %.3f %.3f %.3f",p1.getX(), p1.getY(), p2.getX(), p2.getY(), fill, color.getRed(),color.getGreen(), color.getBlue());
+		return String.format("%-3.0f %-3.0f %-3.0f %-3.0f %b %.3f %.3f %.3f",p1.getX(), p1.getY(), p2.getX(), p2.getY(), filled, color.getRed(),color.getGreen(), color.getBlue());
 	}
-	
+
 	//customize serialization
-		private void writeObject(ObjectOutputStream out) throws IOException {
-			//default serialization all basic types,
-			
-			out.defaultWriteObject();
-			
-			
-			//serialize color
-			
-			out.writeDouble(color.getRed());
-			out.writeDouble(color.getGreen());
-			out.writeDouble(color.getBlue());
-			
-			out.writeDouble(p1.getX());
-			out.writeDouble(p1.getY());
-			out.writeDouble(p2.getX());
-			out.writeDouble(p2.getY());
+	
+	/**
+	 * For serializing the Color and Point object
+	 * @param out
+	 * @throws IOException
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		//default serialization all basic types,
 
-		}
+		out.defaultWriteObject();
 
-		private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
 
-			in.defaultReadObject();
-			double r = in.readDouble();
-			double g = in.readDouble();
-			double b = in.readDouble();
-			
-			double x1 = in.readDouble();
-			double y1 = in.readDouble();
-			double x2 = in.readDouble();
-			double y2 = in.readDouble();
-			
-			setP1(x1,y1);
-			setP2(x2,y2);
-			updateCenter();
-			updateBounds();
-			color = Color.color(r, g, b);
-		}
+		//serialize color
+
+		out.writeDouble(color.getRed());
+		out.writeDouble(color.getGreen());
+		out.writeDouble(color.getBlue());
+		
+		//serialize points
+		out.writeDouble(p1.getX());
+		out.writeDouble(p1.getY());
+		out.writeDouble(p2.getX());
+		out.writeDouble(p2.getY());
+
+	}
+
+	/**
+	 * For reading the custom serialized objects
+	 * @param in
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
+
+		in.defaultReadObject();
+		double r = in.readDouble();
+		double g = in.readDouble();
+		double b = in.readDouble();
+
+		//reading the point coordinates
+		double x1 = in.readDouble();
+		double y1 = in.readDouble();
+		double x2 = in.readDouble();
+		double y2 = in.readDouble();
+
+		setP1(x1,y1);
+		setP2(x2,y2);
+		color = Color.color(r, g, b);
+	}
 
 }
