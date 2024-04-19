@@ -44,7 +44,7 @@ public class Rect extends MyShape {
 	 */
 	@Override
 	public void draw(GraphicsContext gc) {
-		drawBounds(gc);
+		//drawBounds(gc);
 		if (filled) {
 			// Fill the rectangle with the specified color
 			gc.setFill(color);

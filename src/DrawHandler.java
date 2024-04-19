@@ -1,8 +1,10 @@
 /**
  * The DrawHandler class implements the event handling for drawing shapes.
+
  * It handles mouse events such as pressed, dragged, and released to  draw shapes.
  */
 import javafx.event.EventHandler;
+
 import javafx.scene.input.MouseEvent;
 
 
@@ -55,7 +57,6 @@ public class DrawHandler implements EventHandler<MouseEvent> {
 			if (shape.getP2() == null) {
 				shape.setP2(shape.getP1());
 			}
-
 			canvas.addShape(shape);
 			canvas.setCurrentShape(null);
 		}

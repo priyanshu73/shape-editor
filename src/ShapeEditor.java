@@ -1,15 +1,14 @@
 /**
- * Assignment: HW7
+ * Assignment: HW8
  * ShapeEditor is a JavaFX application for drawing shapes on a canvas.
- * It provides functionality for drawing lines, ovals, and rectangles,
+ * It provides functionality for drawing lines, ovals, and rectangles, as well as shape group
  * with options to fill or outline the shapes.
  * It also has the menu bar with saving/ loading files in txt/paf format
  *
  * @author Priyanshu Pyakurel
- * @date 04/04/24
+ * @date 04/18/24
  */
 import java.io.File;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -29,7 +28,7 @@ import javafx.stage.Stage;
 public class ShapeEditor extends Application{
 
 	/*CONSTANTS*/
-	private static final int APP_WIDTH      = 800;
+	private static final int APP_WIDTH      = 900;
 	private static final int APP_HEIGHT     = 700;
 	private static final int CONTROL_HEIGHT =  40; 
 	private static final int CANVAS_HEIGHT  = APP_HEIGHT - CONTROL_HEIGHT;
@@ -39,13 +38,21 @@ public class ShapeEditor extends Application{
 	private BorderPane mainPane;
 	private HBox controlPanel;
 	private ShapeCanvas canvas;
-	private RadioButton rbLine, rbOval, rbRect;
+	private RadioButton rbLine, rbOval, rbRect, rbDelete, rbMove, rbCopy, rbGroup;
 	private Button bnClear;
 	private CheckBox cbFilled;
 	private LineHandler lineHandler;
 	private OvalHandler ovalHandler;
 	private RectHandler rectHandler;
+	private MoveHandler moveHandler;
+	private CopyHandler copyHandler;
+	private GroupHandler groupHandler;
+	
+	
+
+	private DeleteHandler deleteHandler;
 	private ColorPicker colorPicker;
+
 	private Color curColor = Color.BLACK;
 	private MenuBar menuBar;
 	private Menu menuFile, menuAbout;
@@ -81,27 +88,61 @@ public class ShapeEditor extends Application{
 	 */
 	private void setupControls() {
 		controlPanel = new HBox(10);
-		cbFilled = new CheckBox("Filled");
-		rbLine = new RadioButton("Line");
-		rbOval = new RadioButton("Oval");
-		rbRect = new RadioButton("Rect");
 
+		//HBox elements
+		
+		cbFilled = new CheckBox("Filled");
+
+		rbLine = new RadioButton("Line");
+		
+		rbOval = new RadioButton("Oval");
+		
+		rbRect = new RadioButton("Rect");		
+		
+		rbMove = new RadioButton("Move");
+		
+		rbCopy = new RadioButton("Copy");
+		
+		rbDelete = new RadioButton("Delete");
+		
+		rbGroup = new RadioButton("Group");
+
+		bnClear = new Button("Clear");
+		
+		colorPicker = new ColorPicker(curColor);
+		
+		//Handlers
 
 		lineHandler = new LineHandler(canvas);
+		
 		ovalHandler = new OvalHandler(canvas);
+		
 		rectHandler = new RectHandler(canvas);
+		
+		deleteHandler = new DeleteHandler(canvas);
+		
+		moveHandler = new MoveHandler(canvas);
 
-		rbLine.setSelected(true);
+		copyHandler = new CopyHandler(canvas);
+		
+		groupHandler = new GroupHandler(canvas);
+
+
 
 		ToggleGroup group = new ToggleGroup();
 		rbLine.setToggleGroup(group);
 		rbOval.setToggleGroup(group);
 		rbRect.setToggleGroup(group);
-
+		rbMove.setToggleGroup(group);
+		rbDelete.setToggleGroup(group);
+		rbCopy.setToggleGroup(group);
+		rbGroup.setToggleGroup(group);
+		
 		cbFilled.setOnAction(e -> {
 			canvas.setCurFilled(cbFilled.isSelected());
 		});
 
+		rbLine.setSelected(true);
 		canvas.replaceMouseHandler(lineHandler);
 
 
@@ -123,21 +164,44 @@ public class ShapeEditor extends Application{
 			}
 		});
 
-		bnClear = new Button("Clear");
 
 		bnClear.setOnAction(e -> {	
 			canvas.clear();
 		});
 
-		colorPicker = new ColorPicker(curColor);
+
 
 		colorPicker.setOnAction(e ->{
 			curColor = colorPicker.getValue();
 			canvas.setCurColor(curColor);
 		});
 
-		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval,rbRect, colorPicker);
+		rbMove.setOnAction(e -> {
+			if( rbMove.isSelected()) {
+				canvas.replaceMouseHandler(moveHandler);
+			}
+		});
 
+
+		rbDelete.setOnAction(e -> {
+			if( rbDelete.isSelected()) {
+				canvas.replaceMouseHandler(deleteHandler);
+			}
+		});
+		
+		rbCopy.setOnAction(e -> {
+			if(rbCopy.isSelected()) {
+				canvas.replaceMouseHandler(copyHandler);
+			}
+		});
+		
+		rbGroup.setOnAction(e -> {
+			canvas.replaceMouseHandler(groupHandler);
+		});
+
+		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval, rbRect, rbDelete, rbMove, rbCopy, rbGroup, colorPicker);
+
+		controlPanel.setPrefHeight(CONTROL_HEIGHT);
 		mainPane.setTop(controlPanel);
 	}
 
@@ -211,5 +275,9 @@ public class ShapeEditor extends Application{
 	private void setupCanvas() {
 		canvas = new ShapeCanvas(APP_WIDTH, CANVAS_HEIGHT);
 		mainPane.setCenter(canvas);
+	}
+
+	public static void main(String[] args) {
+		launch(args);
 	}
 }

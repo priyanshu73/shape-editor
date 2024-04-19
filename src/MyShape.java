@@ -12,7 +12,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public abstract class MyShape implements Serializable {
+public abstract class MyShape implements Serializable, Cloneable {
 	protected transient Point2D p1, p2 , center;
 	protected transient Color color;
 	protected double ulx , uly, width, height;
@@ -238,6 +238,19 @@ public abstract class MyShape implements Serializable {
 		gc.setLineDashes(null);
 	}
 
+	
+	/**
+	 * Moves this MyShape object by the specified distances in the x and y directions.
+	 *
+	 * @param dx The distance to move in the x-direction.
+	 * @param dy The distance to move in the y-direction.
+	 */
+	public void move(double dx, double dy) {
+		setP1(p1.add(dx,dy));
+		setP2(p2.add(dx,dy));
+	}
+	
+	
 	/**
 	 * Abstract method to draw the shape on the specified graphics context.
 	 * 
@@ -301,4 +314,31 @@ public abstract class MyShape implements Serializable {
 		color = Color.color(r, g, b);
 	}
 
+	
+	/**
+	 * Creates a deep copy of this MyShape object the same data as the original.
+	 *
+	 * @return A deep copy of this MyShape object.
+	 */
+	@Override  
+	public Object clone() {
+		try {
+			//default shallow-copy
+			 MyShape copy = (MyShape) super.clone();
+			 
+			 //customization
+			 copy.setP1(new Point2D(p1.getX(), p1.getY()));
+			 copy.setP2(new Point2D(p2.getX(), p2.getY()));
+			 copy.setColor(Color.color(color.getRed(), color.getGreen(), color.getBlue())); 
+			 
+			 return copy;
+		}
+		
+		catch(CloneNotSupportedException e) {
+			System.err.println("CLONE NOT SUPPORTED");
+			return null;
+		}		 
+	}
+	
+	
 }

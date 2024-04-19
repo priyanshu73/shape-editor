@@ -3,7 +3,6 @@
  * for drawing and managing shapes on a canvas.
  */
 import java.io.File;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,9 +11,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -99,6 +100,10 @@ public class ShapeCanvas extends Canvas {
 		}
 	}
 
+
+	public ArrayList<MyShape> getShapes(){
+		return shapes;
+	}
 	/**
 	 * Clears all shapes from the canvas.
 	 */
@@ -135,8 +140,7 @@ public class ShapeCanvas extends Canvas {
 
 	/**
 	 * Reads shape data from a text file and adds shapes to the internal list.
-	 * The file should contain lines in the format:
-	 * "Type x1 y1 x2 y2 filled r g b"
+	 * Methods loadSingletonText and loadGroupText are used depending on the shape type
 	 * @param fileObj File object representing the text file with shape data
 	 */
 
@@ -145,41 +149,24 @@ public class ShapeCanvas extends Canvas {
 			Scanner fileIn = new Scanner(fileObj);
 
 			clear();
-			int nShapes = fileIn.nextInt();
 			
+			int nShapes = fileIn.nextInt();
+
 			for( int i =0; i < nShapes; ++i) {
 				String type = fileIn.next();
-				int x1 = fileIn.nextInt();
-				int y1 = fileIn.nextInt();
-				int x2 = fileIn.nextInt();
-				int y2  = fileIn.nextInt();
-				Boolean fill = fileIn.nextBoolean(); 
-				double r    = fileIn.nextDouble();
-				double g    = fileIn.nextDouble();
-				double b    = fileIn.nextDouble();
-				Color  col  = Color.color(r, g, b);
-
 				MyShape shape = null;
-
-				if( type.equalsIgnoreCase("line")) {
-					shape = new Line(x1, y1, x2, y2);
-					shape.setFilled(fill);
-					shape.setColor(col);
+				
+				if( !type.equalsIgnoreCase("ShapeGroup")) {
+					shape = loadSingletonText(fileIn, type);
 				}
-
-				else if (type.equalsIgnoreCase("oval")){
-					shape = new Oval(x1,y1,x2,y2);
-					shape.setFilled(fill);
-					shape.setColor(col); 
-				}
-
+				
 				else {
-					shape = new Rect(x1,y1,x2,y2);
-					shape.setFilled(fill);
-					shape.setColor(col);
+					shape = loadGroupText(fileIn);
 				}
+				
 
-				shapes.add(shape);		
+				shapes.add(shape);
+
 			}
 
 			fileIn.close();
@@ -255,9 +242,117 @@ public class ShapeCanvas extends Canvas {
 
 	}
 
+
+	public MyShape closestShape(double x, double y) {
+		if(shapes.size() == 0) {
+			return null;
+		}
+		Point2D p;
+		double minDistance = Double.POSITIVE_INFINITY ;
+		double distance;
+		MyShape closestShape = null ;
+
+		for (MyShape shape : shapes) {
+			p = shape.getCenter();
+			distance = p.distance(x,y);
+			if( distance < minDistance) {
+				closestShape = shape;
+				minDistance = distance;
+			}
+		}
+		return closestShape;
+	}
+
 	/**
-	 * Replaces the current mouse listener (press/release) and mouse motion listener (drag)
-	 * with the passed listener object.
+	 * Removes the given shape object from the canvas
+	 * @param s the shape object to be removed
+	 */
+	public void deleteShape(MyShape s) {
+		shapes.remove(s);
+	}
+
+	/**
+	 * Loads and returns a singleton shape object from the input Scanner.
+	 * The shape type is determined by the provided shapeType parameter.
+	 *
+	 * @param fIn       The Scanner object used for reading input.
+	 * @param shapeType A String indicating the type of shape to load ("line", "oval", or "rect").
+	 * @return A MyShape object representing the loaded shape.
+	 */
+
+	private MyShape loadSingletonText(Scanner fIn, String shapeType) {
+		int x1 = fIn.nextInt();
+		int y1 = fIn.nextInt();
+		int x2 = fIn.nextInt();
+		int y2  = fIn.nextInt();
+		Boolean fill = fIn.nextBoolean(); 
+		double r    = fIn.nextDouble();
+		double g    = fIn.nextDouble();
+		double b    = fIn.nextDouble();
+		Color  col  = Color.color(r, g, b);
+
+		MyShape shape = null;
+		
+		if( shapeType.equalsIgnoreCase("line")) {
+			shape = new Line(x1, y1, x2, y2);
+		}
+
+		else if (shapeType.equalsIgnoreCase("oval")){
+			shape = new Oval(x1,y1,x2,y2);
+		}
+
+		else {
+			shape = new Rect(x1,y1,x2,y2);				
+		}
+		
+		shape.setFilled(fill);
+		shape.setColor(col);
+		
+		return shape;
+
+	}
+	
+	
+	/**
+	 * Loads and returns a ShapeGroup object from the input Scanner.
+	 *
+	 * @param fIn The file Scanner object used for reading input.
+	 * @return A ShapeGroup object representing the loaded shape group.
+	 */
+	
+	private ShapeGroup loadGroupText(Scanner fIn) {
+		
+		int n = fIn.nextInt();
+		int x1 = fIn.nextInt();
+		int y1 = fIn.nextInt();
+		int x2 = fIn.nextInt();
+		int y2  = fIn.nextInt();
+		
+		ShapeGroup group =  new ShapeGroup();
+		group.setP1(x1, y1);
+		group.setP2(x2, y2);
+		
+		for( int i = 0; i < n; i++) {
+			String type = fIn.next();
+			
+			MyShape s = null;
+			if(!type.equalsIgnoreCase("ShapeGroup")) {
+				s = loadSingletonText(fIn, type);
+			}		
+			else {
+				s = loadGroupText(fIn);
+			}
+			group.addMember(s);
+		}
+			
+		return group;
+	}
+	
+	
+	
+	/**
+	 * Replaces the current mouse listener (clicked/press/release) and mouse motion listener (drag)
+	 * with the passed listener object
 	 *
 	 * @param listener An EventHandler object.
 	 */
@@ -265,5 +360,6 @@ public class ShapeCanvas extends Canvas {
 		setOnMousePressed(listener);
 		setOnMouseDragged(listener);
 		setOnMouseReleased(listener);
+		setOnMouseClicked(listener);
 	}
 }

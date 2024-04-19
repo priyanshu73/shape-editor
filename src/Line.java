@@ -48,7 +48,7 @@ public class Line extends MyShape {
 	@Override
 	public void draw(GraphicsContext gc) {
 		// Draw bounds if available
-		drawBounds(gc);
+		//drawBounds(gc);
 		// Set the stroke color
 		gc.setStroke(color);
 
