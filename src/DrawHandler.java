@@ -58,6 +58,7 @@ public class DrawHandler implements EventHandler<MouseEvent> {
 				shape.setP2(shape.getP1());
 			}
 			canvas.addShape(shape);
+			canvas.addEdit(new DrawEdit(canvas,shape));
 			canvas.setCurrentShape(null);
 		}
 	}

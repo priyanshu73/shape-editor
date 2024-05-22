@@ -57,13 +57,16 @@ public class GroupHandler implements EventHandler<MouseEvent> {
             if (shapeGroup.within(shape)) {
                 canvas.deleteShape(shape);
                 shapeGroup.addMember(shape);
-                --i; // arrayList modified so updating correct indices
             }
-            ++i;
+            else {
+            	++i;
+            }
+            
         }
 
         if (!shapeGroup.isEmpty()) {
             canvas.addShape(shapeGroup);
+            canvas.addEdit(new GroupEdit(canvas,shapeGroup));
             canvas.setCurrentShape(null);
         } 
         else {

@@ -29,8 +29,12 @@ public class DeleteHandler implements EventHandler<MouseEvent> {
 
         if ("MOUSE_CLICKED".equals(eventType)) {
             MyShape shape = canvas.closestShape(e.getX(), e.getY());
-            canvas.deleteShape(shape);
+            if(shape != null) {
+                canvas.deleteShape(shape);
+                canvas.addEdit(new DeleteEdit(canvas,shape));
+            }
             canvas.paint();
+            
         }
     }
 }

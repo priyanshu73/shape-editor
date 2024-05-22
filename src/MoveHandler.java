@@ -8,7 +8,7 @@ public class MoveHandler implements EventHandler<MouseEvent> {
 
     private ShapeCanvas canvas;
     private MyShape closestShape;
-    private double x0, y0, x1, y1;
+    private double x0, y0, x1, y1, clickX, clickY;
 
     /**
      * Constructs a new MoveHandler with the specified ShapeCanvas.
@@ -25,8 +25,8 @@ public class MoveHandler implements EventHandler<MouseEvent> {
      * @param e The MouseEvent representing the mouse pressed event.
      */
     private void mousePressed(MouseEvent e) {
-        double clickX = e.getX();
-        double clickY = e.getY();
+        clickX = e.getX();
+        clickY = e.getY();
         closestShape = canvas.closestShape(clickX, clickY);
         if (closestShape != null) {
             x0 = clickX;
@@ -49,6 +49,13 @@ public class MoveHandler implements EventHandler<MouseEvent> {
             canvas.paint();
         }
     }
+    
+    private void mouseReleased(MouseEvent e) {
+    	if (closestShape != null) {
+    		canvas.addEdit(new MoveEdit(canvas,closestShape,x0 - clickX, y0 - clickY));
+    	}
+    }
+
 
     /**
      * Handles the mouse event.
@@ -66,6 +73,11 @@ public class MoveHandler implements EventHandler<MouseEvent> {
             case "MOUSE_DRAGGED":
                 mouseDragged(e);
                 break;
+                
+            case "MOUSE_RELEASED":
+            	mouseReleased(e);
+            	break;
+            	
             default:
                 break;
         }

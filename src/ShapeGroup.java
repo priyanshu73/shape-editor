@@ -120,6 +120,8 @@ public class ShapeGroup extends MyShape {
         for (MyShape shape : group) {
             shape.move(dx, dy);
         }
+        updateCenter();
+        
     }
 
     /**
@@ -134,6 +136,11 @@ public class ShapeGroup extends MyShape {
         }
         setColor(color);
         drawBounds(g);
+    }
+    
+    
+    public ArrayList<MyShape> getMembers(){
+    	return group;
     }
 
     /**

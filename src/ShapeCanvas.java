@@ -1,8 +1,11 @@
 /**
  * The ShapeCanvas class extends the Canvas class and provides functionality
+
+
  * for drawing and managing shapes on a canvas.
  */
 import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,8 +14,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Stack;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -23,6 +26,7 @@ import javafx.scene.paint.Color;
 
 public class ShapeCanvas extends Canvas {
 
+	private Stack<Edit> stackUndo, stackRedo;
 	private GraphicsContext gc; 
 	private ArrayList<MyShape> shapes; 
 	private MyShape curShape; 
@@ -42,6 +46,8 @@ public class ShapeCanvas extends Canvas {
 		this.height = height;
 		gc = getGraphicsContext2D();
 		shapes = new ArrayList<>();
+		stackUndo = new Stack<>();
+		stackRedo = new Stack<>();
 	}
 
 	/**
@@ -54,9 +60,15 @@ public class ShapeCanvas extends Canvas {
 	}
 
 
+	/*
+	 * Set's the color of the canvas to the given color
+	 * 
+	 * @param col Color to be set
+	 */
 	public void setCurColor(Color col) {
 		curColor = col;
 	}
+	
 	/**
 	 * Clears the canvas and redraws all shapes.
 	 */
@@ -193,6 +205,7 @@ public class ShapeCanvas extends Canvas {
 			for(MyShape s : shapes) {
 				fOut.writeObject(s);
 			}
+			
 			fOS.close();
 			fOut.close();
 		}
@@ -247,14 +260,13 @@ public class ShapeCanvas extends Canvas {
 		if(shapes.size() == 0) {
 			return null;
 		}
-		Point2D p;
+
 		double minDistance = Double.POSITIVE_INFINITY ;
 		double distance;
 		MyShape closestShape = null ;
 
 		for (MyShape shape : shapes) {
-			p = shape.getCenter();
-			distance = p.distance(x,y);
+			distance = shape.distance(x,y);
 			if( distance < minDistance) {
 				closestShape = shape;
 				minDistance = distance;
@@ -271,6 +283,39 @@ public class ShapeCanvas extends Canvas {
 		shapes.remove(s);
 	}
 
+	/**
+	 * Adds a new edit action to the manager for potential undoing.
+	 * 
+	 * @param edit The edit action to be added for undoing.
+	 */
+	public void addEdit(Edit edit) {
+	    stackUndo.push(edit);
+        stackRedo.clear(); //so that re-do can only be used right after un-do
+	}
+
+	/**
+	 * Undoes the last edit action if available.
+	 */
+	public void undo() {
+	    if (!stackUndo.empty()) {
+	        Edit edit = stackUndo.pop();
+	        stackRedo.push(edit);
+	        edit.undo();
+	    }
+	}
+
+	/**
+	 * Redoes the last undone edit action if available.
+	 */
+	public void redo() {
+	    if (!stackRedo.empty()) {
+	        Edit edit = stackRedo.pop();
+	        edit.redo();
+	        stackUndo.push(edit);
+	    }
+	}
+
+	
 	/**
 	 * Loads and returns a singleton shape object from the input Scanner.
 	 * The shape type is determined by the provided shapeType parameter.

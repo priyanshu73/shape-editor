@@ -9,7 +9,7 @@ public class CopyHandler implements EventHandler<MouseEvent> {
 
     private ShapeCanvas canvas;
     private MyShape shape, copy;
-    private double curX, curY, newX, newY;
+    private double curX, curY, newX, newY, x0, y0;
 
     /**
      * Constructs a new CopyHandler with the specified ShapeCanvas.
@@ -17,20 +17,21 @@ public class CopyHandler implements EventHandler<MouseEvent> {
      * @param sc The ShapeCanvas associated with this CopyHandler.
      */
     public CopyHandler(ShapeCanvas sc) {
-        canvas = sc;
+        canvas = sc ;
     }
-
     /**
      * Handles mouse pressed event.
      *
      * @param e The MouseEvent representing the mouse pressed event.
      */
     private void mousePressed(MouseEvent e) {
-        curX = e.getX();
-        curY = e.getY();
-        shape = canvas.closestShape(curX, curY);
+        x0 = e.getX();
+        y0 = e.getY();
+        shape = canvas.closestShape(x0, y0);
 
         if (shape != null) {
+            curX = x0;
+            curY = y0;
             copy = (MyShape) shape.clone();
             canvas.addShape(copy);
         }
@@ -51,6 +52,13 @@ public class CopyHandler implements EventHandler<MouseEvent> {
             canvas.paint();
         }
     }
+    
+    private void mouseReleased(MouseEvent e) {
+    	if (copy != null) {
+    		shape = null;
+    		canvas.addEdit(new CopyEdit(canvas, copy));
+    	}
+    }
 
     /**
      * Handles the mouse event.
@@ -68,6 +76,9 @@ public class CopyHandler implements EventHandler<MouseEvent> {
             case "MOUSE_DRAGGED":
                 mouseDragged(e);
                 break;
+            case "MOUSE_RELEASED":
+            	mouseReleased(e);
+            	break;
             default:
                 break;
         }

@@ -1,5 +1,4 @@
 /**
- * Assignment: HW8
  * ShapeEditor is a JavaFX application for drawing shapes on a canvas.
  * It provides functionality for drawing lines, ovals, and rectangles, as well as shape group
  * with options to fill or outline the shapes.
@@ -39,7 +38,7 @@ public class ShapeEditor extends Application{
 	private HBox controlPanel;
 	private ShapeCanvas canvas;
 	private RadioButton rbLine, rbOval, rbRect, rbDelete, rbMove, rbCopy, rbGroup;
-	private Button bnClear;
+	private Button bnClear, undo,redo;
 	private CheckBox cbFilled;
 	private LineHandler lineHandler;
 	private OvalHandler ovalHandler;
@@ -111,6 +110,10 @@ public class ShapeEditor extends Application{
 		
 		colorPicker = new ColorPicker(curColor);
 		
+		undo = new Button("undo");
+		
+		redo = new Button("redo");
+		
 		//Handlers
 
 		lineHandler = new LineHandler(canvas);
@@ -128,6 +131,7 @@ public class ShapeEditor extends Application{
 		groupHandler = new GroupHandler(canvas);
 
 
+		
 
 		ToggleGroup group = new ToggleGroup();
 		rbLine.setToggleGroup(group);
@@ -170,6 +174,15 @@ public class ShapeEditor extends Application{
 		});
 
 
+		undo.setOnAction(e -> {
+			canvas.undo();
+			canvas.paint();
+		});
+		
+		redo.setOnAction(e ->{
+			canvas.redo();
+			canvas.paint();
+		});
 
 		colorPicker.setOnAction(e ->{
 			curColor = colorPicker.getValue();
@@ -199,7 +212,7 @@ public class ShapeEditor extends Application{
 			canvas.replaceMouseHandler(groupHandler);
 		});
 
-		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval, rbRect, rbDelete, rbMove, rbCopy, rbGroup, colorPicker);
+		controlPanel.getChildren().addAll(bnClear, cbFilled, rbLine, rbOval, rbRect, rbDelete, rbMove, rbCopy, rbGroup, colorPicker, undo,redo);
 
 		controlPanel.setPrefHeight(CONTROL_HEIGHT);
 		mainPane.setTop(controlPanel);
