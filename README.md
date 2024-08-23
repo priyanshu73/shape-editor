@@ -17,6 +17,8 @@ The Shape Editor is a robust application built with Java and JavaFX that allows 
 - **Language**: Java
 - **Framework**: JavaFX
 
+![demo](https://github.com/user-attachments/assets/812b3bbb-920c-4d7c-b360-d862dd6fb1b3)
+
 ## Learning Outcomes
 
 - **Java Programming**: Enhanced proficiency in Java through practical application.
